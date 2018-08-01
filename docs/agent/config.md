@@ -8,6 +8,13 @@ might mean:
  * The option refers to a feature that's currently under development
  * The option refers to a feature that's scheduled but will come later
 
+## Environment variables
+
+All options supported by the Infrastructure Agent in the configuration file can also be set through environment variables;
+ * Option names should be put in uppercase with the `DD_` prefix (example: `hostname` -> `DD_HOSTNAME`)
+ * Suboptions should be specified with an underscore (example: `DD_PROXY_HTTP`)
+ * List of values should be separated by spaces (example: `DD_AC_INCLUDE="image:cp-kafka image:k8szk"`)
+
 ## Orchestration + Agent Management
 
 Orchestration has now been deferred to OS facilities wherever possible. To this purpose
