@@ -15,3 +15,9 @@ const (
 	defaultSyslogURI            = "unixgram:///dev/log"
 	defaultGuiPort              = "-1"
 )
+
+
+// NewAssetFs  Should never be called on non-android
+func setAssetFs()  {
+	
+}

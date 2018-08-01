@@ -15,7 +15,6 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/DataDog/datadog-agent/pkg/autodiscovery/integration"
-	"github.com/DataDog/datadog-agent/pkg/util/androidasset"
 	"github.com/DataDog/datadog-agent/pkg/util/log"
 )
 
@@ -49,6 +48,7 @@ type FileConfigProvider struct {
 	Errors map[string]string
 }
 
+
 // NewFileConfigProvider creates a new FileConfigProvider searching for
 // configuration files on the given paths
 func NewFileConfigProvider(paths []string) *FileConfigProvider {
@@ -69,7 +69,7 @@ func (c *FileConfigProvider) Collect() ([]integration.Config, error) {
 	for _, path := range c.paths {
 		log.Infof("%v: searching for configuration files at: %s", c, path)
 
-		entries, err := androidasset.ReadDir(path)
+		entries, err := readDirPtr(path)
 		if err != nil {
 			log.Warnf("Skipping, %s", err)
 			continue
@@ -248,7 +248,7 @@ func GetIntegrationConfigFromFile(name, fpath string) (integration.Config, error
 
 	// Read file contents
 	// FIXME: ReadFile reads the entire file, possible security implications
-	yamlFile, err := androidasset.ReadFile(fpath)
+	yamlFile, err := readFilePtr(fpath)
 	if err != nil {
 		return config, err
 	}

@@ -12,3 +12,9 @@ const (
 	defaultSyslogURI            = ""
 	defaultGuiPort              = "5002"
 )
+
+
+// NewAssetFs  Should never be called on non-android
+func setAssetFs()  {
+	
+}
