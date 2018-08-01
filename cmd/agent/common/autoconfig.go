@@ -14,6 +14,7 @@ import (
 	"github.com/DataDog/datadog-agent/pkg/autodiscovery/scheduler"
 	"github.com/DataDog/datadog-agent/pkg/collector"
 	"github.com/DataDog/datadog-agent/pkg/config"
+	"github.com/DataDog/datadog-agent/pkg/logs"
 	"github.com/DataDog/datadog-agent/pkg/tagger"
 	"github.com/DataDog/datadog-agent/pkg/util/log"
 )
@@ -37,6 +38,11 @@ func SetupAutoConfig(confdPath string) {
 
 	// registering the check scheduler
 	metaScheduler.Register("check", collector.InitCheckScheduler(Coll))
+
+	// registering the logs scheduler
+	if scheduler, err := logs.GetScheduler(); err == nil {
+		metaScheduler.Register("logs", scheduler)
+	}
 
 	// create the Autoconfig instance
 	AC = autodiscovery.NewAutoConfig(metaScheduler)
