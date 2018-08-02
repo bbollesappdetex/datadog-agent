@@ -19,13 +19,14 @@ type systemStats struct {
 
 // Meta is the metadata nested under the meta key
 type Meta struct {
-	SocketHostname string   `json:"socket-hostname"`
-	Timezones      []string `json:"timezones"`
-	SocketFqdn     string   `json:"socket-fqdn"`
-	EC2Hostname    string   `json:"ec2-hostname"`
-	Hostname       string   `json:"hostname"`
-	HostAliases    []string `json:"host_aliases"`
-	InstanceID     string   `json:"instance-id"`
+	SocketHostname   string   `json:"socket-hostname"`
+	Timezones        []string `json:"timezones"`
+	SocketFqdn       string   `json:"socket-fqdn"`
+	EC2Hostname      string   `json:"ec2-hostname"`
+	Hostname         string   `json:"hostname"`
+	HostnameProvider string   `json:"provider"`
+	HostAliases      []string `json:"host_aliases"`
+	InstanceID       string   `json:"instance-id"`
 }
 
 type tags struct {

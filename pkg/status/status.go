@@ -36,9 +36,14 @@ func GetStatus() (map[string]interface{}, error) {
 	hostname, err := util.GetHostname()
 	if err != nil {
 		log.Errorf("Error grabbing hostname for status: %v", err)
-		stats["metadata"] = host.GetPayloadFromCache("unknown")
+		stats["metadata"] = host.GetPayloadFromCache("unknown", "unknown")
 	} else {
-		stats["metadata"] = host.GetPayloadFromCache(hostname)
+		provider, err := util.GetHostnameProvider()
+		if err != nil {
+			log.Errorf("Error grabbing hostname provider for status: %v", err)
+			provider = "unknown"
+		}
+		stats["metadata"] = host.GetPayloadFromCache(hostname, provider)
 	}
 
 	stats["config"] = getPartialConfig()
@@ -121,9 +126,14 @@ func GetDCAStatus() (map[string]interface{}, error) {
 	hostname, err := util.GetHostname()
 	if err != nil {
 		log.Errorf("Error grabbing hostname for status: %v", err)
-		stats["metadata"] = host.GetPayloadFromCache("unknown")
+		stats["metadata"] = host.GetPayloadFromCache("unknown", "unknown")
 	} else {
-		stats["metadata"] = host.GetPayloadFromCache(hostname)
+		provider, err := util.GetHostnameProvider()
+		if err != nil {
+			log.Errorf("Error grabbing hostname provider for status: %v", err)
+			provider = "unknown"
+		}
+		stats["metadata"] = host.GetPayloadFromCache(hostname, provider)
 	}
 	now := time.Now()
 	stats["time"] = now.Format(timeFormat)

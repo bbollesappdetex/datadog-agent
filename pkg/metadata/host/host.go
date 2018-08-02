@@ -30,9 +30,10 @@ const packageCachePrefix = "host"
 
 // GetPayload builds a metadata payload every time is called.
 // Some data is collected only once, some is cached, some is collected at every call.
-func GetPayload(hostname string) *Payload {
+func GetPayload(hostname string, provider string) *Payload {
 	meta := getMeta()
 	meta.Hostname = hostname
+	meta.HostnameProvider = provider
 
 	p := &Payload{
 		Os:            osName,
@@ -52,12 +53,12 @@ func GetPayload(hostname string) *Payload {
 
 // GetPayloadFromCache returns the payload from the cache if it exists, otherwise it creates it.
 // The metadata reporting should always grab it fresh. Any other uses, e.g. status, should use this
-func GetPayloadFromCache(hostname string) *Payload {
+func GetPayloadFromCache(hostname string, provider string) *Payload {
 	key := buildKey("payload")
 	if x, found := cache.Cache.Get(key); found {
 		return x.(*Payload)
 	}
-	return GetPayload(hostname)
+	return GetPayload(hostname, provider)
 }
 
 // GetMeta grabs the metadata from the cache and returns it,

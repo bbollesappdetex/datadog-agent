@@ -16,9 +16,9 @@ import (
 )
 
 // GetPayload returns the complete metadata payload as seen in Agent v5
-func GetPayload(hostname string) *Payload {
+func GetPayload(hostname string, provider string) *Payload {
 	cp := common.GetPayload(hostname)
-	hp := host.GetPayload(hostname)
+	hp := host.GetPayload(hostname, provider)
 	rp := resources.GetPayload(hostname)
 
 	p := &Payload{
