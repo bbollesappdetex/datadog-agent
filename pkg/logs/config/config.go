@@ -6,7 +6,6 @@
 package config
 
 import (
-	"fmt"
 	"github.com/DataDog/datadog-agent/pkg/config"
 )
 
@@ -14,27 +13,10 @@ import (
 var LogsAgent = config.Datadog
 
 // Build returns logs-agent sources
-func Build() (*LogSources, error) {
-	sources, err := buildLogSources(
-		LogsAgent.GetString("confd_path"),
-		LogsAgent.GetBool("logs_config.container_collect_all"),
-		LogsAgent.GetInt("logs_config.tcp_forward_port"),
-	)
-	if err != nil {
-		return nil, err
-	}
-	return sources, nil
-}
-
-// buildLogSources returns all the logs sources computed from logs configuration files and environment variables
-func buildLogSources(ddconfdPath string, collectAllLogsFromContainers bool, tcpForwardPort int) (*LogSources, error) {
+func Build() *LogSources {
 	var sources []*LogSource
 
-	// append sources from all logs config files
-	fileSources := buildLogSourcesFromDirectory(ddconfdPath)
-	sources = append(sources, fileSources...)
-
-	if collectAllLogsFromContainers {
+	if LogsAgent.GetBool("logs_config.container_collect_all") {
 		// append source to collect all logs from all containers.
 		containersSource := NewLogSource("container_collect_all", &LogsConfig{
 			Type:    DockerType,
@@ -44,6 +26,7 @@ func buildLogSources(ddconfdPath string, collectAllLogsFromContainers bool, tcpF
 		sources = append(sources, containersSource)
 	}
 
+	tcpForwardPort := LogsAgent.GetInt("logs_config.tcp_forward_port")
 	if tcpForwardPort > 0 {
 		// append source to collect all logs forwarded by TCP on a given port.
 		tcpForwardSource := NewLogSource("tcp_forward", &LogsConfig{
@@ -53,10 +36,5 @@ func buildLogSources(ddconfdPath string, collectAllLogsFromContainers bool, tcpF
 		sources = append(sources, tcpForwardSource)
 	}
 
-	logSources := NewLogSources(sources)
-	if len(logSources.GetValidSources()) == 0 {
-		return nil, fmt.Errorf("could not find any valid logs configuration")
-	}
-
-	return logSources, nil
+	return NewLogSources(sources)
 }

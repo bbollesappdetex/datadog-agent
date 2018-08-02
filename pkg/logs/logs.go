@@ -25,15 +25,13 @@ var (
 
 // Start starts logs-agent
 func Start() error {
-	sources, err := config.Build()
-	if err != nil {
-		// could not parse the configuration
-		return err
-	}
 	log.Info("Starting logs-agent")
 
+	// setup the log-sources
+	sources := config.Build()
+
 	// initialize the config scheduler
-	scheduler = NewScheduler()
+	scheduler = NewScheduler(sources)
 
 	// setup and start the agent
 	agent = NewAgent(sources)
