@@ -6,6 +6,7 @@
 package util
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -90,6 +91,7 @@ func Fqdn(hostname string) string {
 // * EC2
 func GetHostname() (string, error) {
 	cacheHostnameKey := cache.BuildAgentKey("hostname")
+	cacheHostnameProviderKey := cache.BuildAgentKey("hostnameProvider")
 	if cacheHostname, found := cache.Cache.Get(cacheHostnameKey); found {
 		return cacheHostname.(string), nil
 	}
@@ -99,9 +101,11 @@ func GetHostname() (string, error) {
 
 	// try the name provided in the configuration file
 	name := config.Datadog.GetString("hostname")
+	provider := "configuration"
 	err = ValidHostname(name)
 	if err == nil {
 		cache.Cache.Set(cacheHostnameKey, name, cache.NoExpiration)
+		cache.Cache.Set(cacheHostnameProviderKey, provider, cache.NoExpiration)
 		return name, err
 	}
 
@@ -118,8 +122,10 @@ func GetHostname() (string, error) {
 	log.Debug("GetHostname trying GCE metadata...")
 	if getGCEHostname, found := hostname.ProviderCatalog["gce"]; found {
 		name, err = getGCEHostname(name)
+		provider = "gce"
 		if err == nil {
 			cache.Cache.Set(cacheHostnameKey, name, cache.NoExpiration)
+			cache.Cache.Set(cacheHostnameProviderKey, provider, cache.NoExpiration)
 			return name, err
 		}
 		log.Debug("Unable to get hostname from GCE: ", err)
@@ -128,6 +134,7 @@ func GetHostname() (string, error) {
 	// FQDN
 	log.Debug("GetHostname trying FQDN/`hostname -f`...")
 	fqdn, err := getSystemFQDN()
+	provider = "os"
 	if config.Datadog.GetBool("hostname_fqdn") && err == nil {
 		hostName = fqdn
 	} else {
@@ -161,6 +168,7 @@ func GetHostname() (string, error) {
 			err = ValidHostname(instanceID)
 			if err == nil {
 				hostName = instanceID
+				provider = "aws"
 			} else {
 				log.Debug("EC2 instance ID is not a valid hostname: ", err)
 			}
@@ -184,5 +192,17 @@ func GetHostname() (string, error) {
 	}
 
 	cache.Cache.Set(cacheHostnameKey, hostName, cache.NoExpiration)
+	cache.Cache.Set(cacheHostnameProviderKey, provider, cache.NoExpiration)
 	return hostName, err
+}
+
+// GetHostnameProvider retrieve the provider of the last cached hostname value
+func GetHostnameProvider() (string, error) {
+	cacheHostnameProviderKey := cache.BuildAgentKey("hostnameProvider")
+	if cacheHostnameProvider, found := cache.Cache.Get(cacheHostnameProviderKey); found {
+		return cacheHostnameProvider.(string), nil
+	}
+
+	return "", errors.New("No provider cached value")
+
 }
